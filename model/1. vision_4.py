@@ -84,32 +84,6 @@ def modeling() :
     model.add(Dropout(0.3))
     model.add(Dense(10,activation='softmax')) # softmax는 'categorical_crossentropy' 짝꿍
     return model
-    # inputs1 = Input(shape=(28,28,1))
-    # bn = BatchNormalization(trainable=False)(inputs1)                                      # 배치정규화
-    # conv = Conv2D(128, kernel_size=5, strides=1, padding='same', activation='relu')(bn)   # CNN
-    # bn = BatchNormalization()(conv)                                                       # 배치정규화
-    # conv = Conv2D(128, kernel_size=2, strides=1, padding='same', activation='relu')(bn)   # CNN
-    # pool = MaxPooling2D((2, 2))(conv)                                                     # Max Pooling
-
-    # bn = BatchNormalization()(pool)                                                       # 배치정규화
-    # conv = Conv2D(256, kernel_size=2, strides=1, padding='same', activation='relu')(bn)   # CNN
-    # bn = BatchNormalization()(conv)                                                       # 배치정규화
-    # conv = Conv2D(256, kernel_size=2, strides=1, padding='same', activation='relu')(bn)   # CNN
-    # pool = MaxPooling2D((2, 2))(conv)                                                     # Max Pooling
-
-    # bn = BatchNormalization()(pool)                                                       # 배치정규화
-    # conv = Conv2D(512, kernel_size=2, strides=1, padding='same', activation='relu')(bn)   # CNN
-    # bn = BatchNormalization()(conv)                                                       # 배치정규화
-    # conv = Conv2D(512, kernel_size=2, strides=1, padding='same', activation='relu')(bn)   # CNN
-    # pool = MaxPooling2D((2, 2))(conv) 
-
-    # flatten = Flatten()(pool)                                                             # Flatten
-    # bn = BatchNormalization()(flatten)                                                    # 배치정규화
-    # dense = Dense(1000, activation='relu')(bn)                                            # Fully Connected Layer
-    # bn = BatchNormalization()(dense)                                                      # 배치정규화
-    # outputs = Dense(10, activation='softmax')(bn)   
-    # model = Model(inputs=inputs1, outputs=outputs)
-    # return model
     
 re = ReduceLROnPlateau(patience=50, verbose=1, factor= 0.5)
 ea = EarlyStopping(patience=100, verbose=1, mode='auto')
@@ -136,12 +110,12 @@ for train_index, valid_index in skf.split(train2, t_d):
     test_generator = idg2.flow(test2,shuffle=False)  # predict(x_test)와 같은 역할
     
     model = modeling()
-    # mc = ModelCheckpoint('C:/data/modelCheckpoint/0202_3_best_mc.h5', save_best_only=True, verbose=1)
-    model.compile(loss = 'sparse_categorical_crossentropy', optimizer=Adam(lr=0.002,epsilon=None),metrics=['acc']) # y의 acc가 목적
-    img_fit = model.fit_generator(train_generator,epochs=epochs, validation_data=valid_generator, callbacks=[ea,re])
+    mc = ModelCheckpoint('../data/modelcheckpoint/0204_1_best_mc-{val_loss:.4f}.h5', save_best_only=True, verbose=1)
+    model.compile(loss = 'sparse_categorical_crossentropy', optimizer=Adam(lr=0.002,epsilon=None) ,metrics=['acc']) # y의 acc가 목적
+    img_fit = model.fit_generator(train_generator,epochs=epochs, validation_data=valid_generator, callbacks=[ea,mc,re])
     
     # predict
-    # model.load_weights('C:/data/modelCheckpoint/0202_3_best_mc.h5')
+    model.load_weights('../data/modelcheckpoint/0204_1_best_mc.h5')
     result += model.predict_generator(test_generator,verbose=True)/40 #a += b는 a= a+b
     # predict_generator 예측 결과는 클래스별 확률 벡터로 출력
     print('result:', result)
@@ -151,10 +125,21 @@ for train_index, valid_index in skf.split(train2, t_d):
     val_loss_min.append(hist['val_loss'].min())
     nth += 1
     print(nth, 'set complete!!') # n_splits 다 돌았는지 확인
-
-print(val_loss_min)
-model.summary()
 #제출========================================
 sub = pd.read_csv('./csv/submission.csv')
 sub['digit'] = result.argmax(1) # y값 index 2번째에 저장
-sub.to_csv('./0202_5_mnist.csv',index=False)
+sub.to_csv('./0204_2_result.csv',index=False)
+
+# result: [[2.0816981e-06 7.9039137e-06 1.0943927e-04 ... 3.7613486e-06
+#   4.7306283e-03 5.8609767e-06]
+#  [2.8522397e-04 3.3615084e-05 1.8413861e-06 ... 2.0821801e-05
+#   2.2912137e-03 3.6611351e-01]
+#  [3.7214611e-06 2.4683048e-05 6.9504080e-05 ... 3.4632918e-05
+#   3.7241483e-01 1.1110503e-03]
+#  ...
+#  [4.9444966e-06 5.3485712e-07 3.0833411e-07 ... 1.3235547e-06
+#   2.6281273e-07 5.2115149e-07]
+#  [3.7309021e-06 2.5174499e-03 1.7403848e-03 ... 3.7631300e-05
+#   3.1475547e-01 8.9826086e-04]
+#  [3.7485254e-01 7.1627420e-07 4.8286358e-07 ... 4.1387957e-06
+#   1.1574698e-07 6.9656244e-07]]
