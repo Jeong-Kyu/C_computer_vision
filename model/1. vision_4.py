@@ -110,12 +110,12 @@ for train_index, valid_index in skf.split(train2, t_d):
     test_generator = idg2.flow(test2,shuffle=False)  # predict(x_test)와 같은 역할
     
     model = modeling()
-    mc = ModelCheckpoint('../data/modelcheckpoint/0204_1_best_mc-{val_loss:.4f}.h5', save_best_only=True, verbose=1)
+    mc = ModelCheckpoint('../data/modelcheckpoint/0204_1_best_mc_4.h5', save_best_only=True, verbose=1)
     model.compile(loss = 'sparse_categorical_crossentropy', optimizer=Adam(lr=0.002,epsilon=None) ,metrics=['acc']) # y의 acc가 목적
     img_fit = model.fit_generator(train_generator,epochs=epochs, validation_data=valid_generator, callbacks=[ea,mc,re])
     
     # predict
-    model.load_weights('../data/modelcheckpoint/0204_1_best_mc.h5')
+    model.load_weights('../data/modelcheckpoint/0204_1_best_mc_4.h5')
     result += model.predict_generator(test_generator,verbose=True)/40 #a += b는 a= a+b
     # predict_generator 예측 결과는 클래스별 확률 벡터로 출력
     print('result:', result)
@@ -128,7 +128,7 @@ for train_index, valid_index in skf.split(train2, t_d):
 #제출========================================
 sub = pd.read_csv('./csv/submission.csv')
 sub['digit'] = result.argmax(1) # y값 index 2번째에 저장
-sub.to_csv('./0204_2_result.csv',index=False)
+sub.to_csv('./0205_2_result.csv',index=False)
 
 # result: [[2.0816981e-06 7.9039137e-06 1.0943927e-04 ... 3.7613486e-06
 #   4.7306283e-03 5.8609767e-06]
@@ -143,3 +143,4 @@ sub.to_csv('./0204_2_result.csv',index=False)
 #   3.1475547e-01 8.9826086e-04]
 #  [3.7485254e-01 7.1627420e-07 4.8286358e-07 ... 4.1387957e-06
 #   1.1574698e-07 6.9656244e-07]]
+pool = AveragePooling2D()(conv)    

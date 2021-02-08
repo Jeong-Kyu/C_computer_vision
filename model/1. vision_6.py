@@ -12,18 +12,17 @@ from tensorflow.keras.models import Model
 from tensorflow.keras import optimizers
 # from keras.utils import np_utils
 import cv2
-
 import gc
 from keras import backend as bek
 
 ########################################
-train = pd.read_csv('../data/DACON_vision1/train.csv')
+train = pd.read_csv('./csv/train.csv')
 print(train.shape)  # (2048, 787)
 
-submission = pd.read_csv('../data/DACON_vision1/submission.csv')
+submission = pd.read_csv('./csv/submission.csv')
 print(submission.shape) # (20480, 2)
 
-test = pd.read_csv('../data/DACON_vision1/test.csv')
+test = pd.read_csv('./csv/test.csv')
 print(test.shape)   # (20480, 786)
 ########################################
 
@@ -132,7 +131,7 @@ for train, val in kfold.split(train_224):
     #   continue
     initial_learningrate=2e-3  
     es = EarlyStopping(monitor='val_loss', verbose=1, patience=50)      
-    filepath_val_acc="../data/DACON_vision1/cp/effi_model_aug"+str(Fold)+".ckpt"
+    filepath_val_acc="../data/modelcheckpoint/0204_2_best_mc"+str(Fold)+".ckpt"
     checkpoint_val_acc = ModelCheckpoint(filepath_val_acc, monitor='val_accuracy', verbose=1, save_best_only=True, mode='max',save_weights_only=True)
 
 
@@ -173,4 +172,4 @@ for train, val in kfold.split(train_224):
 submission['digit'] = np.argmax(results, axis=1)
 # model.predict(x_test)
 submission.head()
-submission.to_csv('../data/DACON_vision1/0204_7_private2_sub.csv', index=False)
+submission.to_csv('./0205_1_private2_sub.csv', index=False)
