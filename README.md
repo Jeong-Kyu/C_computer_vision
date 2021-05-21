@@ -5,3 +5,6 @@
   + train.csv : 2048개
   + test.csv : 20480개
   + 출처 : https://www.nist.gov/itl/products-and-services/emnist-dataset
++ Model
+  + Data Imagegenerater
+  + resnet
